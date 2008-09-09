@@ -20,5 +20,5 @@ else
 end
 ActionController::Base.session_options[:session_key] = session_key
 ActionController::Base.session_options[:secret] = session_secret
-# Store cookie sessions config, rescue for initial running of configurator migration
+# Store cookie sessions config, rescuing for initial setup (configurator migration or rake db:schema:load)
 begin; Configurator[:session_key] = session_key; Configurator[:session_secret] = session_secret; rescue; end

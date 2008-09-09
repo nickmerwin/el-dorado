@@ -9,16 +9,16 @@ Rails::Initializer.run do |config|
   config.active_record.partial_updates = true
 end
 
-# Your cookie sessions configuration is read from config/database.yml or automatically generated
+# Your cookie sessions configuration is read from the db, config/database.yml, or generated automatically
+begin; session_key = Configurator[:session_key]; session_secret = Configurator[:session_secret]; rescue; end
 db = YAML.load_file('config/database.yml')
 if db[RAILS_ENV]['session_key'] && db[RAILS_ENV]['secret']
-  session_key    = db[RAILS_ENV]['session_key']
-  session_secret = db[RAILS_ENV]['secret']
+  session_key    ||= db[RAILS_ENV]['session_key']
+  session_secret ||= db[RAILS_ENV]['secret']
 else
-  session_key    = Rails::SecretKeyGenerator.new(rand).generate_secret
-  session_secret = Rails::SecretKeyGenerator.new(rand).generate_secret
+  session_key    ||= Rails::SecretKeyGenerator.new(rand).generate_secret
+  session_secret ||= Rails::SecretKeyGenerator.new(rand).generate_secret
 end
+begin; Configurator[:session_key] ||= session_key; Configurator[:session_secret] ||= session_secret; rescue; end
 ActionController::Base.session_options[:session_key] = session_key
 ActionController::Base.session_options[:secret] = session_secret
-# Store cookie sessions config, rescuing for initial setup (configurator migration or rake db:schema:load)
-begin; Configurator[:session_key] = session_key; Configurator[:session_secret] = session_secret; rescue; end
